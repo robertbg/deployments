@@ -9,6 +9,9 @@ runs:
   main: lib/main.js
 
 inputs:
+  environment:
+    required: false
+    description: Environment name for build
   token:
     required: true
     description: GitHub token
@@ -27,3 +30,13 @@ inputs:
   ref:
     required: false
     description: The git ref to use for the deploy, defaults to github.ref
+  deployment_id:
+    required: false
+    description: Environment name for build
+  deployment_url:
+    required: false
+    description: Environment name for build
+  status:
+    required: false
+    description: Environment name for build
+  

@@ -9,7 +9,6 @@ async function run() {
 
     const token = core.getInput('token', { required: true });
     const step = core.getInput('step', { required: true });
-    const autoInactive = core.getInput('auto_inactive') !== 'false';
     const logsURL = core.getInput('logs');
     const description = core.getInput('desc');
 
@@ -19,7 +18,7 @@ async function run() {
     switch (step) {
     case 'start':
       {
-        const environment = core.getInput('env', { required: true });
+        const environment = core.getInput('environment', { required: true });
         const noOverride = core.getInput('no_override') !== 'false';
         const transient = core.getInput('transient') === 'true';
         const gitRef = core.getInput('ref') || ref;
@@ -53,7 +52,7 @@ async function run() {
           ...repo,
           deployment_id: parseInt(deploymentID, 10),
           state: 'in_progress',
-          auto_inactive: autoInactive,
+          auto_inactive: false,
           log_url: logsURL || `https://github.com/${repo.owner}/${repo.repo}/commit/${sha}/checks`,
           description,
         });
@@ -65,7 +64,7 @@ async function run() {
     case 'finish':
       {
         const deploymentID = core.getInput('deployment_id', { required: true });
-        const envURL = core.getInput('env_url', { required: false });
+        const deploymentUrl = core.getInput('deployment_url', { required: false });
         const status = core.getInput('status', { required: true }).toLowerCase();
         if (status !== 'success' && status !== 'failure' && status !== 'cancelled') {
           core.error(`unexpected status ${status}`);
@@ -78,11 +77,11 @@ async function run() {
           ...repo,
           deployment_id: parseInt(deploymentID, 10),
           state: newStatus,
-          auto_inactive: autoInactive,
+          auto_inactive: false,
           description,
 
           // only set environment_url if deployment worked
-          environment_url: (newStatus === 'success') ? envURL : '',
+          environment_url: (newStatus === 'success') ? deploymentUrl : '',
           // set log_url to action by default
           log_url: logsURL || `https://github.com/${repo.owner}/${repo.repo}/commit/${sha}/checks`,
         });
@@ -93,8 +92,7 @@ async function run() {
 
     case 'deactivate-env':
       {
-        const environment = core.getInput('env', { required: true });
-
+        const environment = core.getInput('environment', { required: true });
         await deactivateEnvironment(client, repo, environment);
       }
       break;
